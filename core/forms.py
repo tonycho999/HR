@@ -10,7 +10,7 @@ class CustomUserCreationForm(UserCreationForm):
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
-        fields = ("username", "email", "team", "position")
+        fields = "__all__"
 
 class LeaveForm(forms.ModelForm):
     class Meta:
