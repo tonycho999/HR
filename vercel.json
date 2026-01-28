@@ -1,0 +1,14 @@
+{
+    "builds": [
+        {
+            "src": "bpo_system/wsgi.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "bpo_system/wsgi.py"
+        }
+    ]
+}
