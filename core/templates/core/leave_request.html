@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<h2>Request Leave</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label>Leave Type</label>
+        {{ form.leave_type }}
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label>Start Date</label>
+            {{ form.start_date }}
+        </div>
+        <div class="col-md-6 mb-3">
+            <label>End Date</label>
+            {{ form.end_date }}
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Reason</label>
+        {{ form.reason }}
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Request</button>
+    <a href="{% url 'leave_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

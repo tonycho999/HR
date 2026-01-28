@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<h2>Pending Payroll Approvals</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Period</th>
+            <th>Net Pay</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payroll in payrolls %}
+        <tr>
+            <td>{{ payroll.user.username }}</td>
+            <td>{{ payroll.month }}/{{ payroll.year }}</td>
+            <td>{{ payroll.net_pay }}</td>
+            <td>
+                <a href="{% url 'approve_payroll' payroll.id %}" class="btn btn-sm btn-success">Approve</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No pending payrolls.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

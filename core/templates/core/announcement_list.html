@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<h2>Announcements</h2>
+
+<div class="list-group">
+    {% for announcement in announcements %}
+    <div class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{ announcement.title }}</h5>
+            <small>{{ announcement.created_at|date:"M d, Y H:i" }}</small>
+        </div>
+        <p class="mb-1">{{ announcement.content|linebreaks }}</p>
+        <small>Target: {{ announcement.get_target_team_display|default:"All Teams" }}</small>
+    </div>
+    {% empty %}
+    <p>No announcements found.</p>
+    {% endfor %}
+</div>
+{% endblock %}
