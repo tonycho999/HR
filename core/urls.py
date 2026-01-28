@@ -17,4 +17,5 @@ urlpatterns = [
     path('payroll/approval/', views.payroll_approval_list, name='payroll_approval'),
     path('payroll/approve/<int:payroll_id>/', views.approve_payroll, name='approve_payroll'),
     path('announcements/', views.announcement_list, name='announcement_list'),
+    path('manifest.json', views.manifest, name='manifest'),
 ]

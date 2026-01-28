@@ -7,6 +7,9 @@ from django.db.models import Q
 from .models import User, Attendance, Leave, Payroll, Announcement
 from .forms import LeaveForm
 from django.utils import timezone
+from django.http import HttpResponse
+from django.conf import settings
+import os
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -152,3 +155,15 @@ def approve_payroll(request, payroll_id):
     payroll.is_approved = True
     payroll.save()
     return redirect('payroll_approval')
+
+def manifest(request):
+    return HttpResponse(
+        open(os.path.join(settings.BASE_DIR, 'core/static/core/manifest.json')).read(),
+        content_type='application/json'
+    )
+
+def service_worker(request):
+    return HttpResponse(
+        open(os.path.join(settings.BASE_DIR, 'core/static/core/sw.js')).read(),
+        content_type='application/javascript'
+    )
