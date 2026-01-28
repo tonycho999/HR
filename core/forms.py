@@ -1,5 +1,16 @@
 from django import forms
-from .models import Leave
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import Leave, User
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ("username", "email", "team", "position")
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ("username", "email", "team", "position")
 
 class LeaveForm(forms.ModelForm):
     class Meta:

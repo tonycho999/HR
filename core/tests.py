@@ -8,7 +8,12 @@ class BPOSystemTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='password', team='IT')
-        self.admin = User.objects.create_superuser(username='admin', password='password', is_staff=True)
+        if User.objects.filter(username='admin').exists():
+            self.admin = User.objects.get(username='admin')
+            self.admin.set_password('password')
+            self.admin.save()
+        else:
+            self.admin = User.objects.create_superuser(username='admin', password='password', is_staff=True)
 
     def test_login_and_dashboard(self):
         response = self.client.post(reverse('login'), {'username': 'testuser', 'password': 'password'})

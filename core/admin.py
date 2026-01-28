@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import User, Attendance, Leave, Payroll, Announcement
 
 class CustomUserAdmin(UserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = User
     list_display = ('username', 'email', 'team', 'position', 'last_ip_address', 'is_staff')
     list_filter = ('team', 'is_staff', 'is_superuser')
     fieldsets = UserAdmin.fieldsets + (
