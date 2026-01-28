@@ -44,7 +44,9 @@
                     {% endif %}
                 </ul>
                 <span class="navbar-text me-3">
-                    {{ user.username }} ({{ user.team|default:"No Team" }})
+                    <a href="{% url 'profile' %}" class="text-light text-decoration-none">
+                        {{ user.username }} ({{ user.team|default:"No Team" }})
+                    </a>
                 </span>
                 <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
                 {% endif %}

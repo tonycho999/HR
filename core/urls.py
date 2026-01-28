@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('profile/', views.profile, name='profile'),
     path('time_in/', views.time_in, name='time_in'),
     path('time_out/', views.time_out, name='time_out'),
     path('leave/request/', views.leave_request, name='leave_request'),

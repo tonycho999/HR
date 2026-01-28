@@ -86,3 +86,47 @@ class BPOSystemTests(TestCase):
         self.assertContains(response, "General")
         self.assertContains(response, "IT Only")
         self.assertNotContains(response, "HR Only")
+
+    def test_pagination(self):
+        self.client.login(username='testuser', password='password')
+        # Create 15 leaves
+        for i in range(15):
+             Leave.objects.create(
+                user=self.user,
+                leave_type='VL',
+                start_date=timezone.now().date(),
+                end_date=timezone.now().date(),
+                reason=f'Reason {i}'
+            )
+
+        # Page 1 should have 10
+        response = self.client.get(reverse('leave_list'))
+        self.assertEqual(len(response.context['leaves']), 10)
+
+        # Page 2 should have 5
+        response = self.client.get(reverse('leave_list') + '?page=2')
+        self.assertEqual(len(response.context['leaves']), 5)
+
+    def test_profile_view(self):
+        self.client.login(username='testuser', password='password')
+        response = self.client.get(reverse('profile'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'testuser')
+        self.assertContains(response, 'IT')
+
+    def test_404_error_handling(self):
+        self.client.login(username='admin', password='password')
+
+        # Invalid Leave ID
+        response = self.client.get(reverse('approve_leave', args=[999]))
+        self.assertEqual(response.status_code, 404)
+
+        # Invalid Payroll ID
+        response = self.client.get(reverse('approve_payroll', args=[999]))
+        self.assertEqual(response.status_code, 404)
+
+        # Invalid Payroll Detail for User
+        self.client.logout()
+        self.client.login(username='testuser', password='password')
+        response = self.client.get(reverse('payroll_detail', args=[999]))
+        self.assertEqual(response.status_code, 404)

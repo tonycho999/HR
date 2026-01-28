@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.core.paginator import Paginator
 from .models import User, Attendance, Leave, Payroll, Announcement
 from .forms import LeaveForm
 from django.utils import timezone
@@ -35,6 +36,10 @@ class CustomLoginView(LoginView):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+@login_required
+def profile(request):
+    return render(request, 'core/profile.html')
 
 @login_required
 def dashboard(request):
@@ -92,7 +97,10 @@ def leave_request(request):
 
 @login_required
 def leave_list(request):
-    leaves = Leave.objects.filter(user=request.user).order_by('-created_at')
+    leave_list = Leave.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(leave_list, 10)  # Show 10 leaves per page
+    page_number = request.GET.get('page')
+    leaves = paginator.get_page(page_number)
     return render(request, 'core/leave_list.html', {'leaves': leaves})
 
 @login_required
@@ -106,7 +114,7 @@ def leave_approval_list(request):
 def approve_leave(request, leave_id):
     if not request.user.is_staff:
         return redirect('dashboard')
-    leave = Leave.objects.get(id=leave_id)
+    leave = get_object_or_404(Leave, id=leave_id)
     leave.status = 'APPROVED'
     leave.save()
     return redirect('leave_approval')
@@ -115,22 +123,22 @@ def approve_leave(request, leave_id):
 def reject_leave(request, leave_id):
     if not request.user.is_staff:
         return redirect('dashboard')
-    leave = Leave.objects.get(id=leave_id)
+    leave = get_object_or_404(Leave, id=leave_id)
     leave.status = 'REJECTED'
     leave.save()
     return redirect('leave_approval')
 
 @login_required
 def payroll_list(request):
-    payrolls = Payroll.objects.filter(user=request.user, is_approved=True).order_by('-year', '-month')
+    payroll_list = Payroll.objects.filter(user=request.user, is_approved=True).order_by('-year', '-month')
+    paginator = Paginator(payroll_list, 10)  # Show 10 payrolls per page
+    page_number = request.GET.get('page')
+    payrolls = paginator.get_page(page_number)
     return render(request, 'core/payroll_list.html', {'payrolls': payrolls})
 
 @login_required
 def payroll_detail(request, pk):
-    try:
-        payroll = Payroll.objects.get(pk=pk, user=request.user)
-    except Payroll.DoesNotExist:
-        return redirect('payroll_list')
+    payroll = get_object_or_404(Payroll, pk=pk, user=request.user)
     return render(request, 'core/payroll_detail.html', {'payroll': payroll})
 
 @login_required
@@ -151,7 +159,7 @@ def payroll_approval_list(request):
 def approve_payroll(request, payroll_id):
     if not request.user.is_staff:
         return redirect('dashboard')
-    payroll = Payroll.objects.get(id=payroll_id)
+    payroll = get_object_or_404(Payroll, id=payroll_id)
     payroll.is_approved = True
     payroll.save()
     return redirect('payroll_approval')
