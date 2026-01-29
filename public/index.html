@@ -4,52 +4,51 @@ cat <<EOF > public/index.html
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPO Nexus - HR Management System</title>
+    <title>BPO Nexus - HR Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-900">
+<body class="bg-slate-50 text-slate-900">
     <div id="app" class="max-w-md mx-auto min-h-screen bg-white shadow-2xl relative pb-24">
         <div id="login-screen" class="p-8 pt-24">
             <h1 class="text-4xl font-black text-indigo-700 mb-2">BPO Nexus</h1>
             <p class="text-slate-500 mb-10 font-medium">Employee Management Portal</p>
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Work Email" class="w-full p-4 border rounded-2xl outline-none">
-                <input type="password" id="login-password" placeholder="Password" class="w-full p-4 border rounded-2xl outline-none">
-                <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold text-lg shadow-lg">Sign In</button>
+                <input type="email" id="login-email" placeholder="Work Email" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="password" id="login-password" placeholder="Password" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+                <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-indigo-700">Sign In</button>
             </div>
         </div>
         <div id="main-screen" class="hidden">
             <header class="bg-indigo-700 text-white p-8 rounded-b-[40px] shadow-xl">
                 <div class="flex justify-between items-start">
                     <div>
-                        <span id="user-role-badge" class="bg-white/20 text-[10px] px-3 py-1 rounded-full uppercase font-black text-white italic">Staff</span>
-                        <h2 id="user-name-display" class="text-2xl font-bold mt-2">Loading...</h2>
+                        <span id="user-role-badge" class="bg-white/20 text-[10px] px-3 py-1 rounded-full uppercase font-black text-white">Staff</span>
+                        <h2 id="user-name-display" class="text-2xl font-bold mt-2">Welcome!</h2>
                     </div>
-                    <button onclick="handleLogout()" class="bg-white/10 p-2 rounded-full">Logout</button>
+                    <button onclick="handleLogout()" class="bg-white/10 p-2 rounded-full font-bold text-xs">Logout</button>
                 </div>
             </header>
             <div class="p-6 space-y-6 -mt-6">
-                <div class="bg-white p-6 rounded-3xl shadow-xl border">
-                    <h3 class="font-bold text-lg mb-4">Daily Attendance</h3>
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 text-center">
+                    <h3 class="font-bold text-lg mb-4 text-slate-800">Attendance</h3>
                     <div class="grid grid-cols-2 gap-4">
-                        <button onclick="recordAttendance('IN')" class="bg-emerald-500 text-white p-5 rounded-2xl font-bold">Clock In</button>
-                        <button onclick="recordAttendance('OUT')" class="bg-rose-500 text-white p-5 rounded-2xl font-bold">Clock Out</button>
+                        <button onclick="recordAttendance('IN')" class="bg-emerald-500 text-white p-5 rounded-2xl font-bold hover:bg-emerald-600 transition-all">Clock In</button>
+                        <button onclick="recordAttendance('OUT')" class="bg-rose-500 text-white p-5 rounded-2xl font-bold hover:bg-rose-600 transition-all">Clock Out</button>
                     </div>
                 </div>
                 <div id="hr-panel" class="hidden bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-indigo-200">
-                    <h3 class="font-black text-indigo-900 uppercase mb-4">HR: Register Employee</h3>
+                    <h3 class="font-black text-indigo-900 uppercase mb-4 tracking-tight underline">Admin: Register Employee</h3>
                     <div class="space-y-3">
-                        <input type="text" id="new-emp-name" placeholder="Full Name" class="w-full p-3 border rounded-xl">
-                        <input type="email" id="new-emp-email" placeholder="Email" class="w-full p-3 border rounded-xl">
-                        <input type="number" id="new-emp-salary" placeholder="Salary" class="w-full p-3 border rounded-xl">
-                        <select id="new-emp-role" class="w-full p-3 border rounded-xl font-bold">
+                        <input type="text" id="new-name" placeholder="Full Name" class="w-full p-3 border rounded-xl text-sm">
+                        <input type="email" id="new-email" placeholder="Email Address" class="w-full p-3 border rounded-xl text-sm">
+                        <select id="new-role" class="w-full p-3 border rounded-xl font-bold bg-white text-sm">
                             <option value="STAFF">STAFF</option>
                             <option value="HR">HR ADMIN</option>
                         </select>
-                        <button onclick="hrCreateUser()" class="w-full bg-indigo-900 text-white p-4 rounded-xl font-bold">Add to Database</button>
+                        <button onclick="hrCreateUser()" class="w-full bg-indigo-900 text-white p-4 rounded-xl font-bold shadow-lg">Save to Database</button>
                     </div>
                 </div>
             </div>
@@ -67,14 +66,21 @@ cat <<EOF > public/index.html
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+
         async function handleLogin() {
             const email = document.getElementById('login-email').value;
             const pw = document.getElementById('login-password').value;
-            try { await auth.signInWithEmailAndPassword(email, pw); } catch (e) { alert(e.message); }
+            try { await auth.signInWithEmailAndPassword(email, pw); } 
+            catch (e) { alert("Login Error: " + e.message); }
         }
-        async function loadAppData(user) {
+
+        async function loadApp(user) {
             const doc = await db.collection('users').doc(user.uid).get();
-            if (!doc.exists) { alert("No DB Record Found!"); auth.signOut(); return; }
+            if (!doc.exists) { 
+                alert("No User Profile Found in Database. Please contact HR."); 
+                auth.signOut(); 
+                return; 
+            }
             const data = doc.data();
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-screen').classList.remove('hidden');
@@ -82,6 +88,7 @@ cat <<EOF > public/index.html
             document.getElementById('user-role-badge').innerText = data.role;
             if (data.role === 'HR') document.getElementById('hr-panel').classList.remove('hidden');
         }
+
         async function recordAttendance(type) {
             const res = await fetch('https://api.ipify.org?format=json');
             const ipData = await res.json();
@@ -91,18 +98,20 @@ cat <<EOF > public/index.html
                 ip: ipData.ip,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            alert(type + " Successful!");
+            alert(type + " recorded from IP: " + ipData.ip);
         }
+
         async function hrCreateUser() {
-            const name = document.getElementById('new-emp-name').value;
-            const email = document.getElementById('new-emp-email').value;
-            const role = document.getElementById('new-emp-role').value;
-            const salary = parseInt(document.getElementById('new-emp-salary').value);
-            await db.collection('users').add({ name, email, role, baseSalary: salary });
-            alert("Added to DB. Now create Auth account in Firebase Console.");
+            const name = document.getElementById('new-name').value;
+            const email = document.getElementById('new-email').value;
+            const role = document.getElementById('new-role').value;
+            if(!name || !email) return alert("Please fill all fields.");
+            await db.collection('users').add({ name, email, role, baseSalary: 25000 });
+            alert("Added to Database. Remember to create the account in Firebase Auth Console.");
         }
+
         function handleLogout() { auth.signOut().then(() => location.reload()); }
-        auth.onAuthStateChanged(user => { if (user) loadAppData(user); });
+        auth.onAuthStateChanged(user => { if (user) loadApp(user); });
     </script>
 </body>
 </html>
