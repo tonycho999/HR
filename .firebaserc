@@ -1,5 +1,7 @@
+cat <<EOF > .firebaserc
 {
   "projects": {
     "default": "hrproject-744f0"
   }
 }
+EOF
