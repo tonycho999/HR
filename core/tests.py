@@ -38,7 +38,11 @@ class BPOSystemTests(TestCase):
 
         # Mock Time In yesterday
         yesterday = timezone.now() - datetime.timedelta(days=1)
-        Attendance.objects.create(user=self.user, time_in=yesterday, date=yesterday.date())
+        att = Attendance.objects.create(user=self.user, time_in=yesterday, date=yesterday.date())
+
+        # Verify creation time
+        self.assertTrue((att.time_in - yesterday).total_seconds() < 5)
+        self.assertEqual(att.date, yesterday.date())
 
         # Time Out (should close yesterday's session even if it is today now)
         response = self.client.post(reverse('time_out'))

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 class User(AbstractUser):
     TEAM_CHOICES = (
@@ -17,8 +18,8 @@ class User(AbstractUser):
 
 class Attendance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
-    time_in = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(default=timezone.now)
+    time_in = models.DateTimeField(default=timezone.now)
     time_out = models.DateTimeField(null=True, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
 
