@@ -3,109 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPO Nexus - Employee Management System</title>
+    <title>BPO Nexus - HR Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <style>
-        .glass-morphism {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-    </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
+<body class="bg-slate-100 text-slate-900 font-sans">
 
-    <div id="app" class="max-w-md mx-auto min-h-screen pb-24 shadow-2xl bg-white">
+    <div id="app" class="max-w-md mx-auto min-h-screen bg-white shadow-2xl relative pb-24">
         
-        <div id="login-screen" class="p-8 pt-24 flex flex-col justify-center">
-            <h1 class="text-4xl font-extrabold text-indigo-700 mb-2">BPO Nexus</h1>
-            <p class="text-slate-500 mb-10 font-medium">Global Workforce Portal</p>
+        <div id="login-screen" class="p-8 pt-24">
+            <h1 class="text-4xl font-black text-indigo-700 mb-2">BPO Nexus</h1>
+            <p class="text-slate-500 mb-10 font-medium">Employee Management Portal</p>
             
             <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Email Address</label>
-                    <input type="email" id="email" class="w-full p-4 mt-1 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Password</label>
-                    <input type="password" id="password" class="w-full p-4 mt-1 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                </div>
-                <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-indigo-700 transition-colors">Sign In</button>
+                <input type="email" id="login-email" placeholder="Work Email" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="password" id="login-password" placeholder="Password" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+                <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-indigo-700">Sign In</button>
             </div>
         </div>
 
-        <div id="main-screen" class="hidden animate-in fade-in duration-500">
-            <header class="bg-indigo-700 text-white p-8 rounded-b-[40px] shadow-xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span id="user-role-badge" class="glass-morphism text-[10px] px-3 py-1 rounded-full uppercase font-black tracking-widest text-white">Staff</span>
-                            <h2 id="user-name-display" class="text-2xl font-bold mt-2 italic font-serif">Welcome back!</h2>
-                        </div>
-                        <button onclick="handleLogout()" class="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                        </button>
+        <div id="main-screen" class="hidden">
+            <header class="bg-indigo-700 text-white p-8 rounded-b-[40px] shadow-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span id="user-role-badge" class="bg-white/20 text-[10px] px-3 py-1 rounded-full uppercase font-black tracking-widest text-white">Staff</span>
+                        <h2 id="user-name-display" class="text-2xl font-bold mt-2 italic">Loading...</h2>
                     </div>
+                    <button onclick="handleLogout()" class="bg-white/10 p-2 rounded-full">Logout</button>
                 </div>
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full"></div>
             </header>
 
             <div class="p-6 space-y-6 -mt-6">
                 <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100">
-                    <h3 class="font-bold text-slate-800 text-lg mb-4">Time Tracking</h3>
+                    <h3 class="font-bold text-slate-800 text-lg mb-4">Daily Attendance</h3>
                     <div class="grid grid-cols-2 gap-4">
-                        <button onclick="recordAttendance('IN')" class="group bg-emerald-50 text-emerald-600 p-5 rounded-2xl font-bold border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all">
-                            <span class="block text-2xl mb-1">↑</span> Clock In
-                        </button>
-                        <button onclick="recordAttendance('OUT')" class="group bg-rose-50 text-rose-600 p-5 rounded-2xl font-bold border border-rose-100 hover:bg-rose-600 hover:text-white transition-all">
-                            <span class="block text-2xl mb-1">↓</span> Clock Out
-                        </button>
+                        <button onclick="recordAttendance('IN')" class="bg-emerald-50 text-emerald-600 p-5 rounded-2xl font-bold border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all">Clock In</button>
+                        <button onclick="recordAttendance('OUT')" class="bg-rose-50 text-rose-600 p-5 rounded-2xl font-bold border border-rose-100 hover:bg-rose-600 hover:text-white transition-all">Clock Out</button>
                     </div>
+                    <p id="attendance-log" class="text-[10px] text-slate-400 mt-4 text-center"></p>
                 </div>
 
                 <div class="bg-indigo-900 p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden">
-                    <h3 class="font-bold text-indigo-300 uppercase tracking-tighter">Est. 13th Month Pay</h3>
+                    <h3 class="font-bold text-indigo-300 uppercase text-xs tracking-widest">Estimated 13th Month Pay</h3>
                     <div class="flex justify-between items-end mt-2">
                         <span class="text-3xl font-black" id="thirteenth-pay">₱ 0.00</span>
-                        <p class="text-[10px] opacity-60 text-right uppercase">Calculated based on<br>accumulated basic salary</p>
+                        <p class="text-[8px] opacity-60 text-right uppercase">Formula: (Total Basic / 12)</p>
                     </div>
                 </div>
 
-                <div id="hr-panel" class="hidden bg-slate-100 p-6 rounded-3xl border-2 border-dashed border-indigo-200">
-                    <h3 class="font-black text-indigo-900 uppercase mb-4 tracking-tight underline">Admin: Employee Setup</h3>
+                <div id="hr-panel" class="hidden bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-indigo-200">
+                    <h3 class="font-black text-indigo-900 uppercase mb-4 tracking-tight">HR: Register New Employee</h3>
                     <div class="space-y-3">
-                        <input type="text" id="new-name" placeholder="Full Name" class="w-full p-3 border rounded-xl">
-                        <input type="email" id="new-email" placeholder="Work Email" class="w-full p-3 border rounded-xl">
-                        <select id="new-role" class="w-full p-3 border rounded-xl font-bold bg-white">
-                            <option value="STAFF">Staff (Standard)</option>
-                            <option value="MANAGER">Manager (Approver)</option>
-                            <option value="HR">HR Admin (Full Access)</option>
+                        <input type="text" id="new-emp-name" placeholder="Full Name" class="w-full p-3 border rounded-xl text-sm">
+                        <input type="email" id="new-emp-email" placeholder="Employee Email" class="w-full p-3 border rounded-xl text-sm">
+                        <input type="number" id="new-emp-salary" placeholder="Basic Salary (Monthly)" class="w-full p-3 border rounded-xl text-sm">
+                        <select id="new-emp-role" class="w-full p-3 border rounded-xl font-bold bg-white text-sm">
+                            <option value="STAFF">STAFF</option>
+                            <option value="MANAGER">MANAGER</option>
+                            <option value="HR">HR ADMIN</option>
                         </select>
-                        <button onclick="createNewUser()" class="w-full bg-indigo-900 text-white p-4 rounded-xl font-bold shadow-lg">Register Employee</button>
+                        <button onclick="hrCreateUser()" class="w-full bg-indigo-900 text-white p-4 rounded-xl font-bold shadow-lg">Add Employee to Database</button>
+                        <p class="text-[10px] text-slate-500 italic">*After adding, create the actual login account in Firebase Auth Console using the same email.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white/80 backdrop-blur-md border-t flex justify-around p-5 hidden z-50">
-            <button onclick="changeTab('home')" class="text-indigo-600 font-bold flex flex-col items-center">
-                <span class="text-xs uppercase tracking-widest">Home</span>
-            </button>
-            <button onclick="alert('Policies & Rewards Section coming soon')" class="text-slate-400 font-bold flex flex-col items-center">
-                <span class="text-xs uppercase tracking-widest">Rewards</span>
-            </button>
-            <button onclick="showChangePassword()" class="text-slate-400 font-bold flex flex-col items-center">
-                <span class="text-xs uppercase tracking-widest">Security</span>
-            </button>
+        <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white border-t flex justify-around p-4 hidden shadow-inner">
+            <button class="text-indigo-600 font-bold text-xs uppercase">Dashboard</button>
+            <button onclick="alert('Rewards & Policies Coming Soon')" class="text-slate-400 font-bold text-xs uppercase">Rewards</button>
+            <button onclick="changePasswordPrompt()" class="text-slate-400 font-bold text-xs uppercase">Security</button>
         </nav>
     </div>
 
     <script>
+        // --- 1. FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyDdyLCiNuJ8x-iSH0OT3Jrwte_X1w97I8k",
             authDomain: "hrproject-744f0.firebaseapp.com",
@@ -119,71 +93,134 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let userData = null;
+        let currentUserData = null;
 
+        // --- 2. AUTHENTICATION LOGIC ---
         async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const pw = document.getElementById('password').value;
-            try { await auth.signInWithEmailAndPassword(email, pw); } 
-            catch (e) { alert("Access Denied: " + e.message); }
+            const email = document.getElementById('login-email').value;
+            const pw = document.getElementById('login-password').value;
+            try {
+                await auth.signInWithEmailAndPassword(email, pw);
+            } catch (e) {
+                alert("Login Failed: " + e.message);
+            }
         }
 
-        async function loadApp(user) {
+        async function loadAppData(user) {
             const doc = await db.collection('users').doc(user.uid).get();
-            if (!doc.exists) return;
-            userData = doc.data();
+            if (!doc.exists) {
+                alert("User record not found in Firestore. Contact HR.");
+                auth.signOut();
+                return;
+            }
+            currentUserData = doc.data();
 
+            // Toggle Screens
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-screen').classList.remove('hidden');
             document.getElementById('bottom-nav').classList.remove('hidden');
-            
-            document.getElementById('user-name-display').innerText = userData.name;
-            document.getElementById('user-role-badge').innerText = userData.role;
 
-            if (userData.role === 'HR') document.getElementById('hr-panel').classList.remove('hidden');
-            
-            update13thMonth();
+            // Update UI
+            document.getElementById('user-name-display').innerText = currentUserData.name;
+            document.getElementById('user-role-badge').innerText = currentUserData.role;
+
+            // HR Exclusive View
+            if (currentUserData.role === 'HR') {
+                document.getElementById('hr-panel').classList.remove('hidden');
+            }
+
+            calculate13thMonth();
         }
 
+        // --- 3. ATTENDANCE & IP TRACKING ---
         async function recordAttendance(type) {
-            const res = await fetch('https://api.ipify.org?format=json');
-            const data = await res.json();
-            const ip = data.ip;
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                const ip = data.ip;
 
-            await db.collection('attendance').add({
-                uid: auth.currentUser.uid,
-                name: userData.name,
-                type: type,
-                ip: ip,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert(`${type} Successful. IP Recorded: ${ip}`);
+                await db.collection('attendance').add({
+                    uid: auth.currentUser.uid,
+                    name: currentUserData.name,
+                    type: type,
+                    ip: ip,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('attendance-log').innerText = `Last Activity: ${type} from ${ip}`;
+                alert(`Successfully clocked ${type}`);
+            } catch (e) {
+                alert("Error recording attendance.");
+            }
         }
 
-        function update13thMonth() {
-            // Logic: (Monthly Basic Salary * Months Rendered) / 12
-            const basic = userData.baseSalary || 20000;
-            const months = 12; // Placeholder for tenure
-            const total = (basic * months) / 12;
+        // --- 4. 13th MONTH PAY CALCULATION ---
+        function calculate13thMonth() {
+            const monthlySalary = currentUserData.baseSalary || 0;
+            // Simulated: (Salary * 12 months) / 12 = Monthly Salary
+            // In a real system, you sum actual payouts from a 'payroll' collection.
+            const total = (monthlySalary * 12) / 12;
             document.getElementById('thirteenth-pay').innerText = "₱ " + total.toLocaleString();
         }
 
-        async function createNewUser() {
-            const email = document.getElementById('new-email').value;
-            const name = document.getElementById('new-name').value;
-            const role = document.getElementById('new-role').value;
-            
+        // --- 5. HR: EMPLOYEE CREATION ---
+        async function hrCreateUser() {
+            const name = document.getElementById('new-emp-name').value;
+            const email = document.getElementById('new-emp-email').value;
+            const role = document.getElementById('new-emp-role').value;
+            const salary = parseInt(document.getElementById('new-emp-salary').value);
+
+            if(!name || !email || !salary) return alert("Please fill all employee fields.");
+
             try {
+                // We save the user data to Firestore. 
+                // IMPORTANT: The HR must still create the Auth account in the Firebase Console manually.
                 await db.collection('users').add({
-                    email, name, role, baseSalary: 25000, createdAt: new Date()
+                    name,
+                    email: email.toLowerCase(),
+                    role,
+                    baseSalary: salary,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert("Employee record created in Database. Please create Auth credentials in Firebase Console.");
-            } catch (e) { alert(e.message); }
+                alert(`Employee ${name} added to database successfully.`);
+                
+                // Clear inputs
+                document.getElementById('new-emp-name').value = "";
+                document.getElementById('new-emp-email').value = "";
+                document.getElementById('new-emp-salary').value = "";
+            } catch (e) {
+                alert("Error adding employee: " + e.message);
+            }
         }
 
-        function handleLogout() { auth.signOut().then(() => location.reload()); }
+        // --- 6. SECURITY: CHANGE PASSWORD ---
+        async function changePasswordPrompt() {
+            const newPassword = prompt("Enter your new password:");
+            if (newPassword && newPassword.length >= 6) {
+                try {
+                    await auth.currentUser.updatePassword(newPassword);
+                    alert("Password updated successfully!");
+                } catch (e) {
+                    alert("Error: " + e.message);
+                }
+            } else {
+                alert("Password must be at least 6 characters.");
+            }
+        }
 
-        auth.onAuthStateChanged(user => { if (user) loadApp(user); });
+        function handleLogout() {
+            auth.signOut().then(() => location.reload());
+        }
+
+        // Auth Listener
+        auth.onAuthStateChanged(user => {
+            if (user) loadAppData(user);
+            else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('main-screen').classList.add('hidden');
+                document.getElementById('bottom-nav').classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
